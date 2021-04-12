@@ -25,62 +25,69 @@ const getPaymentAmountCurrency = () => cy.get(`${classOpened} input[name*="payme
 const getExitButton = () => cy.contains('button', 'выйти', { matchCase: false })
 const getConfirmExitButton = () => cy.contains('.popup button', 'да', { matchCase: false })
 
+const closeSaveWindowIfExists = () => cy.get('body').then((body) => {
+    if (body.find('.popup h2:contains(Сохранить) ')){
+        cy.get('button').contains('отмена', { matchCase: false }).click();
+    }
+});
+
 describe('fill 3ndfl foreign incomes', () => {
-    before(() => {
-        cy.clearCookies()
-        cy.clearLocalStorage()
-    })
     it('log in to nalog.ru', () => {
         if (token) {
-            cy.visit('https://lkfl2.nalog.ru/lkfl/')
             cy.setLocalStorage('token', token);
-            cy.getLocalStorage('token');
             cy.visit('https://lkfl2.nalog.ru/lkfl/')
-            cy.saveLocalStorage();
-        } else if (login && password) {
+        } else {
             cy.visit('https://lkfl2.nalog.ru/lkfl/')
             getLoginInput().type(String(login))
             getPasswordInput().type(password)
             getLoginButton().click();
-            cy.wait(2000)
-
-            // первый вариант декларации
-            cy.visit(declarationUrl)
-            // cy.wait(5000)
-            getForeignTab().click()
-            foreignIncomes.forEach((el) => {
-                getSourceAddButton().click()
-                cy.wait(500)
-                getLastSource().click()
-                getIncomeSourceInput().type(el.name)
-                getIncomeCountrySelect().click()
-                getIncomeCountrySelect().find('input').type(String(el.countryCode))
-                getSelectPopup().find('[role="option"]').click()
-
-                getIncomeTypeCode().click()
-                getIncomeTypeCode().find('input').type('1010')
-                getSelectPopup().find('[role="option"]').click()
-
-                getIncomeTaxDeductionCode().click()
-                getIncomeTaxDeductionCode().find('input').type('не ')
-                getSelectPopup().find('[role="option"]').click()
-
-                getIncomeAmountCurrencyInput().type(String(el.totalAmount))
-
-                getIncomeDateInput().type(el.date)
-                getTaxPaymentDateInput().type(el.date)
-
-                getIncomeCurrencyCodeSelect().click()
-                // доход подразумевается всегда в доларах, валюта всегда 840
-                getIncomeCurrencyCodeSelect().find('input').type('840')
-                getSelectPopup().find('[role="option"]').click()
-
-                getCurrencyAutoDetectionLabel().click()
-                getPaymentAmountCurrency().type(String(el.tax))
-            })
-
-            getExitButton().click()
-            getConfirmExitButton().click()
         }
+        cy.wait(2000)
+        cy.saveLocalStorage();
+    })
+    it('open declaration foreign incomes', () => {
+        cy.restoreLocalStorage()
+        cy.visit(declarationUrl)
+        getForeignTab().click()
+    })
+    it('fill foreign incomes', () => {
+        cy.restoreLocalStorage()
+        closeSaveWindowIfExists()
+        foreignIncomes.forEach((el) => {
+            getSourceAddButton().click()
+            cy.wait(500)
+            getLastSource().click()
+            getIncomeSourceInput().type(el.name)
+            getIncomeCountrySelect().click()
+            getIncomeCountrySelect().find('input').type(String(el.countryCode))
+            getSelectPopup().find('[role="option"]').click()
+
+            getIncomeTypeCode().click()
+            getIncomeTypeCode().find('input').type('1010')
+            getSelectPopup().find('[role="option"]').click()
+
+            getIncomeTaxDeductionCode().click()
+            getIncomeTaxDeductionCode().find('input').type('не ')
+            getSelectPopup().find('[role="option"]').click()
+
+            getIncomeAmountCurrencyInput().type(String(el.totalAmount))
+
+            getIncomeDateInput().type(el.date)
+            getTaxPaymentDateInput().type(el.date)
+
+            getIncomeCurrencyCodeSelect().click()
+            // доход подразумевается всегда в доларах, валюта всегда 840
+            getIncomeCurrencyCodeSelect().find('input').type('840')
+            getSelectPopup().find('[role="option"]').click()
+
+            getCurrencyAutoDetectionLabel().click()
+            getPaymentAmountCurrency().type(String(el.tax))
+        })
+    })
+    it('save filled incomes', () => {
+        cy.restoreLocalStorage()
+        closeSaveWindowIfExists()
+        getExitButton().click()
+        getConfirmExitButton().click()
     })
 })
