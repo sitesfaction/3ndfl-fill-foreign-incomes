@@ -7,10 +7,11 @@ type TForeignIncome = {
     "totalAmount": string | number;
 }
 
-export const login: string = '123321123123';
+export const login: string | number = '123321123123';
 export const password: string = 'myStrongPa$$w0rd!';
 export const token: string = null;
-export const declarationUrl: string = '';
+// пример ссылки, вместо 11111111 должен быть id нужной декларации
+export const declarationUrl: string = 'https://lkfl2.nalog.ru/lkfl/situations/3NDFL?cardId=11111111&step=sheetA';
 
 export const foreignIncomes: TForeignIncome[] = [
     // example
